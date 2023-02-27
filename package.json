@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/smusali/vaccine/issues"
   },
-  "homepage": "https://github.com/smusali/vaccine#readme"
+  "homepage": "https://github.com/smusali/vaccine#readme",
+  "dependencies": {
+    "mongoose": "^7.0.0"
+  }
 }
