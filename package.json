@@ -4,7 +4,11 @@
   "description": "RESTful API for Vaccine Summary",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint .",
+    "lint-fix": "eslint --fix .",
+    "pretest": "npm run seed && npm run lint",
+    "seed": "node ./scripts/seedDb.js",
+    "start": "nodemon ./src/server.js"
   },
   "repository": {
     "type": "git",
@@ -28,5 +32,14 @@
     "express": "^4.18.2",
     "mongoose": "^7.0.0",
     "nodemon": "^2.0.20"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "eslint": "^8.35.0",
+    "eslint-config-standard-with-typescript": "^34.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.6.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "typescript": "^4.9.5"
   }
 }

@@ -1,17 +1,17 @@
-const express = require('express');
+const express = require('express')
 
-const Vaccine = require('./schema');
+const Vaccine = require('./schema')
 
-const app = express();
+const app = express()
 
 app.get('/vaccine-summary', async (req, res) => {
   try {
-    const { c, dateFrom, dateTo, rangeSize, sort } = req.query;
+    const { c, dateFrom, dateTo, sort } = req.query
 
     const match = {
       ReportingCountry: c,
       YearWeekISO: { $gte: dateFrom, $lt: dateTo }
-    };
+    }
 
     const group = {
       _id: { $substr: ['$YearWeekISO', 0, 4] },
@@ -23,7 +23,7 @@ app.get('/vaccine-summary', async (req, res) => {
       },
       totalDoses: { $sum: '$NumberDosesReceived' },
       totalPopulation: { $sum: '$Denominator' }
-    };
+    }
 
     const project = {
       year: '$_id',
@@ -31,13 +31,13 @@ app.get('/vaccine-summary', async (req, res) => {
       totalDoses: 1,
       totalPopulation: 1,
       coverage: { $multiply: [{ $divide: ['$totalDoses', '$totalPopulation'] }, 100] }
-    };
+    }
 
-    const sortQuery = {};
+    const sortQuery = {}
     if (sort === 'NumberDosesReceived') {
-      sortQuery.totalDoses = -1;
+      sortQuery.totalDoses = -1
     } else {
-      sortQuery.year = 1;
+      sortQuery.year = 1
     }
 
     const pipeline = [
@@ -45,14 +45,14 @@ app.get('/vaccine-summary', async (req, res) => {
       { $group: group },
       { $project: project },
       { $sort: sortQuery }
-    ];
+    ]
 
-    const summary = await Vaccine.aggregate(pipeline);
+    const summary = await Vaccine.aggregate(pipeline)
 
-    res.json(summary);
+    res.json({ summary })
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server Error' })
   }
-});
+})
 
-module.exports = app;
+module.exports = app

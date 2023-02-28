@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+const mongoose = require('mongoose')
+const { Schema } = mongoose
 
 const vaccineSchema = new Schema({
   YearWeekISO: { type: String, required: true },
@@ -18,8 +18,8 @@ const vaccineSchema = new Schema({
   TargetGroup: { type: String, required: true },
   Vaccine: { type: String, required: true },
   Denominator: { type: Number, required: false }
-});
+})
 
-const Vaccine = mongoose.model('Vaccine', vaccineSchema);
+const Vaccine = mongoose.model('Vaccine', vaccineSchema)
 
-module.exports = Vaccine;
+module.exports = Vaccine
