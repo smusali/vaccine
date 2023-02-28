@@ -4,7 +4,7 @@ const fs = require('fs');
 const Vaccine = require('../src/schema');
 const vaccines = require('./jsonData/vaccines.json')
 
-mongoose.connect('mongodb://localhost:27017/mydatabase', {
+mongoose.connect('mongodb://localhost:27017/vaccinedb', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
