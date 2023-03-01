@@ -1,57 +1,48 @@
 const express = require('express')
 
 const Vaccine = require('./schema')
+const date = require('../libs/date')
 
 const app = express()
 
 app.get('/vaccine-summary', async (req, res) => {
   try {
-    const { c, dateFrom, dateTo, sort } = req.query
-
-    const match = {
-      ReportingCountry: c,
-      YearWeekISO: { $gte: dateFrom, $lt: dateTo }
-    }
-
-    const group = {
-      _id: { $substr: ['$YearWeekISO', 0, 4] },
-      weeks: {
-        $push: {
-          week: '$YearWeekISO',
-          doses: '$NumberDosesReceived'
+    const { c, from, to, range, sort } = req.query
+    const ranges = date.ranges(from, to, parseInt(range))
+    const pipeline = [{
+      $match: {
+        ReportingCountry: c/*,
+        YearWeekISO: {
+          $in: ranges.flatMap(range => [range.start, range.end])
+        }*/
+      }
+    }, {
+      $group: {
+        _id: '$YearWeekISO',
+        NumberDosesReceived: {
+          $sum: '$NumberDosesReceived'
         }
-      },
-      totalDoses: { $sum: '$NumberDosesReceived' },
-      totalPopulation: { $sum: '$Denominator' }
-    }
+      }
+    }, {
+      $sort: {
+        [sort]: sort === 'NumberDosesReceived' ? -1 : 1
+      }
+    }]
 
-    const project = {
-      year: '$_id',
-      weeks: 1,
-      totalDoses: 1,
-      totalPopulation: 1,
-      coverage: { $multiply: [{ $divide: ['$totalDoses', '$totalPopulation'] }, 100] }
-    }
-
-    const sortQuery = {}
-    if (sort === 'NumberDosesReceived') {
-      sortQuery.totalDoses = -1
-    } else {
-      sortQuery.year = 1
-    }
-
-    const pipeline = [
-      { $match: match },
-      { $group: group },
-      { $project: project },
-      { $sort: sortQuery }
-    ]
-
-    const summary = await Vaccine.aggregate(pipeline)
+    const result = await Vaccine.aggregate(pipeline).exec()
+    console.log(ranges)
+    const summary = result.map((r, i) => ({
+      weekStart: ranges[i][0],
+      weekEnd: ranges[i][1],
+      NumberDosesReceived: r.NumberDosesReceived
+    }))
 
     res.json({ summary })
   } catch (err) {
-    res.status(500).json({ message: 'Server Error' })
+  	console.log(err)
+    res.status(500).json({
+    	message: 'Server Error'
+    })
   }
 })
 

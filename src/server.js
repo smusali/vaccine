@@ -13,7 +13,7 @@ async function init () {
     })
 
     await app.listen(port)
-    console.log(`Server listening at http://localhost:${port}`);
+    console.log(`Server listening at http://localhost:${port}`)
   } catch (error) {
     console.error(error)
   }
